@@ -5,7 +5,10 @@ import {
   TrendingUp, RefreshCw, Copy, Check, ChevronDown, ChevronRight,
   Sparkles, Database, Cpu, Clock, FileText, BarChart2, AlertCircle,
   BookOpen, Zap, MapPin, Home, Star, Printer, Layout, FileCode,
+  Share2, RotateCcw,
 } from "lucide-react";
+import LandingPage from "./LandingPage.jsx";
+import SocialPostModal from "./SocialPostModal.jsx";
 
 // ── Las Vegas luxury home photos (Unsplash) ───────────────────────────────────
 const LV_PHOTOS = [
@@ -357,7 +360,7 @@ function WelcomeScreen({ questionCount, articleCount, top3Count }) {
 }
 
 // ── Article View (markdown) ───────────────────────────────────────────────────
-function ArticleView({ article, onCopy, copied, viewMode, onViewMode }) {
+function ArticleView({ article, onCopy, copied, viewMode, onViewMode, onRegenerate, isRegenerating, onSocialShare }) {
   const wordCount = countWords(article.content);
   return (
     <motion.div key={article.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
@@ -415,6 +418,24 @@ function ArticleView({ article, onCopy, copied, viewMode, onViewMode }) {
             {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
             {copied ? "Copied" : "Copy to CMS"}
           </button>
+          <button
+            onClick={onRegenerate}
+            disabled={isRegenerating}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all disabled:opacity-40"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)", color: "var(--text-secondary)" }}
+            title="Regenerate article"
+          >
+            <RotateCcw className={`w-3.5 h-3.5 ${isRegenerating ? "animate-spin" : ""}`} />
+            {isRegenerating ? "Regenerating…" : "Regenerate"}
+          </button>
+          <button
+            onClick={onSocialShare}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all"
+            style={{ background: "var(--gold-dim)", border: "1px solid var(--gold-border)", color: "var(--gold-light)" }}
+            title="Share to social media"
+          >
+            <Share2 className="w-3.5 h-3.5" /> Share
+          </button>
         </div>
       </div>
       <div className="gold-divider mb-8 flex-shrink-0" />
@@ -428,7 +449,7 @@ function ArticleView({ article, onCopy, copied, viewMode, onViewMode }) {
 }
 
 // ── Infographic View ──────────────────────────────────────────────────────────
-function InfographicView({ article, onCopy, copied, viewMode, onViewMode }) {
+function InfographicView({ article, onCopy, copied, viewMode, onViewMode, onRegenerate, isRegenerating, onSocialShare }) {
   const photo     = photoForArticle(article.id);
   const wordCount = countWords(article.content);
   const title     = extractTitle(article.content) || article.keyword;
@@ -489,6 +510,24 @@ function InfographicView({ article, onCopy, copied, viewMode, onViewMode }) {
           >
             {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
             {copied ? "Copied" : "Copy"}
+          </button>
+          <button
+            onClick={onRegenerate}
+            disabled={isRegenerating}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all disabled:opacity-40"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)", color: "var(--text-secondary)" }}
+            title="Regenerate article"
+          >
+            <RotateCcw className={`w-3.5 h-3.5 ${isRegenerating ? "animate-spin" : ""}`} />
+            {isRegenerating ? "Regenerating…" : "Regenerate"}
+          </button>
+          <button
+            onClick={onSocialShare}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all"
+            style={{ background: "var(--gold-dim)", border: "1px solid var(--gold-border)", color: "var(--gold-light)" }}
+            title="Share to social media"
+          >
+            <Share2 className="w-3.5 h-3.5" /> Share
           </button>
         </div>
       </div>
@@ -588,6 +627,7 @@ function InfographicView({ article, onCopy, copied, viewMode, onViewMode }) {
 
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function App() {
+  const [showLanding,     setShowLanding]     = useState(() => !localStorage.getItem("gre_entered"));
   const [questions,       setQuestions]       = useState([]);
   const [history,         setHistory]         = useState({});
   const [articles,        setArticles]        = useState([]);
@@ -598,6 +638,7 @@ export default function App() {
   const [isGenerating,    setIsGenerating]    = useState(false);
   const [isRefreshing,    setIsRefreshing]    = useState(false);
   const [isAutoGen,       setIsAutoGen]       = useState(false);
+  const [isRegenerating,  setIsRegenerating]  = useState(false);
   const [qLoading,        setQLoading]        = useState(true);
   const [error,           setError]           = useState(null);
   const [openHistoryWeek, setOpenHistoryWeek] = useState(null);
@@ -606,8 +647,10 @@ export default function App() {
   const [semrushStatus,   setSemrushStatus]   = useState("online");
   const [veniceStatus,    setVeniceStatus]    = useState("online");
   const [weekLabel,       setWeekLabel]       = useState("");
+  const [socialModalOpen, setSocialModalOpen] = useState(false);
+  const [socialConnected, setSocialConnected] = useState({});
 
-  useEffect(() => { loadAll(); }, []);
+  useEffect(() => { loadAll(); fetchSocialStatus(); }, []);
 
   async function loadAll() {
     setQLoading(true);
@@ -707,6 +750,42 @@ export default function App() {
     }
   }
 
+  function handleEnterPlatform() {
+    localStorage.setItem("gre_entered", "1");
+    setShowLanding(false);
+  }
+
+  async function fetchSocialStatus() {
+    try {
+      const r = await fetch("/api/social/status");
+      if (r.ok) setSocialConnected(await r.json());
+    } catch { /* non-critical */ }
+  }
+
+  async function handleRegenerate() {
+    if (!activeArticle) return;
+    setIsRegenerating(true);
+    setVeniceStatus("loading");
+    setError(null);
+    try {
+      const r = await fetch("/api/regenerate", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ id: activeArticle.id }),
+      });
+      if (!r.ok) throw new Error(await r.text());
+      const { article: updated } = await r.json();
+      setActiveArticle(updated);
+      setArticles((prev) => prev.map((a) => a.id === updated.id ? updated : a));
+      setVeniceStatus("online");
+    } catch (e) {
+      setError(`Regenerate failed: ${e.message}`);
+      setVeniceStatus("error");
+    } finally {
+      setIsRegenerating(false);
+    }
+  }
+
   function handleCopy() {
     if (!activeArticle) return;
     navigator.clipboard.writeText(activeArticle.content);
@@ -720,6 +799,15 @@ export default function App() {
 
   const showInfographic = activeArticle && viewMode === "infographic";
   const showArticle     = activeArticle && viewMode === "article";
+
+  if (showLanding) {
+    return (
+      <LandingPage
+        onEnter={handleEnterPlatform}
+        stats={{ articles: articles.length }}
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen overflow-hidden" style={{ background: "var(--bg-primary)" }}>
@@ -741,6 +829,13 @@ export default function App() {
         </div>
 
         <div className="flex items-center gap-5">
+          <button
+            onClick={() => setShowLanding(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)", color: "var(--text-muted)" }}
+          >
+            <Home className="w-3 h-3" /> Home
+          </button>
           <div className="flex items-center gap-1.5">
             <StatusDot status={semrushStatus} />
             <span className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>SEMrush</span>
@@ -897,6 +992,9 @@ export default function App() {
                 copied={copied}
                 viewMode={viewMode}
                 onViewMode={setViewMode}
+                onRegenerate={handleRegenerate}
+                isRegenerating={isRegenerating}
+                onSocialShare={() => setSocialModalOpen(true)}
               />
             ) : showArticle ? (
               <ArticleView
@@ -905,6 +1003,9 @@ export default function App() {
                 copied={copied}
                 viewMode={viewMode}
                 onViewMode={setViewMode}
+                onRegenerate={handleRegenerate}
+                isRegenerating={isRegenerating}
+                onSocialShare={() => setSocialModalOpen(true)}
               />
             ) : (
               <WelcomeScreen
@@ -1002,6 +1103,16 @@ export default function App() {
           )}
         </aside>
       </div>
+
+      {/* Social Post Modal */}
+      {socialModalOpen && activeArticle && (
+        <SocialPostModal
+          article={activeArticle}
+          photo={photoForArticle(activeArticle.id)}
+          onClose={() => setSocialModalOpen(false)}
+          socialConnected={socialConnected}
+        />
+      )}
     </div>
   );
 }

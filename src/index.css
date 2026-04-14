@@ -156,6 +156,14 @@ html, body, #root {
 }
 .pulse-gold { animation: pulse-gold 2s ease-in-out infinite; }
 
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Social modal: lock body scroll when open ───────────────── */
+body.modal-open { overflow: hidden; }
+
 /* ── Infographic Styles ─────────────────────────────────────── */
 .infographic-card {
   box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,168,76,0.08);

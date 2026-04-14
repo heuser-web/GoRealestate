@@ -610,6 +610,173 @@ app.post("/api/auto-generate", async (_, res) => {
   }
 });
 
+// ── Regenerate: overwrite an existing article with a fresh generation ─────────
+app.post("/api/regenerate", async (req, res) => {
+  const { id } = req.body ?? {};
+  if (!id) return res.status(400).json({ error: "id required" });
+
+  const articles = readJSON(ARTICLES_FILE, []);
+  const idx      = articles.findIndex((a) => a.id === id);
+  if (idx === -1) return res.status(404).json({ error: "article not found" });
+
+  const existing = articles[idx];
+  try {
+    const veniceRes = await synthesizeArticle(existing.keyword, { volume: existing.volume, difficulty: existing.difficulty });
+    const content   = veniceRes.choices?.[0]?.message?.content ?? "";
+    const tokens    = veniceRes.usage?.total_tokens ?? 0;
+
+    if (!content) return res.status(502).json({ error: "empty response from Venice" });
+
+    const updated = { ...existing, content, tokens, generatedAt: new Date().toISOString() };
+    articles[idx] = updated;
+    writeJSON(ARTICLES_FILE, articles);
+
+    console.log(`[Regenerate] ✓ "${existing.keyword.slice(0, 50)}" — ${tokens} tokens`);
+    res.json({ article: updated });
+  } catch (e) {
+    console.error("[/api/regenerate]", e.message);
+    res.status(502).json({ error: e.message });
+  }
+});
+
+// ── Social media tokens file ──────────────────────────────────────────────────
+const SOCIAL_FILE = join(DATA, "social_tokens.json");
+
+function readSocialTokens() {
+  return readJSON(SOCIAL_FILE, {
+    twitter:   { accessToken: null },
+    facebook:  { pageId: null, pageAccessToken: null },
+    instagram: { userId: null, accessToken: null },
+  });
+}
+
+// GET /api/social/status — returns which platforms are configured
+app.get("/api/social/status", (_, res) => {
+  const tokens = readSocialTokens();
+  res.json({
+    twitter:   !!(tokens.twitter?.accessToken),
+    facebook:  !!(tokens.facebook?.pageId && tokens.facebook?.pageAccessToken),
+    instagram: !!(tokens.instagram?.userId && tokens.instagram?.accessToken),
+  });
+});
+
+// POST /api/social/tokens — save platform tokens (called from Settings UI)
+app.post("/api/social/tokens", (req, res) => {
+  const { platform, ...creds } = req.body ?? {};
+  const allowed = ["twitter", "facebook", "instagram"];
+  if (!allowed.includes(platform)) return res.status(400).json({ error: "invalid platform" });
+
+  const tokens = readSocialTokens();
+  tokens[platform] = { ...tokens[platform], ...creds };
+  writeJSON(SOCIAL_FILE, tokens);
+  console.log(`[Social] ✓ Tokens saved for ${platform}`);
+  res.json({ ok: true });
+});
+
+// POST /api/social/post — post to a social platform
+// Body: { platform, caption, imageUrl, title, articleId }
+app.post("/api/social/post", async (req, res) => {
+  const { platform, caption, imageUrl } = req.body ?? {};
+  if (!platform || !caption) return res.status(400).json({ error: "platform and caption required" });
+
+  const tokens = readSocialTokens();
+
+  try {
+    if (platform === "twitter") {
+      const { accessToken } = tokens.twitter ?? {};
+      if (!accessToken) throw new Error("Twitter access token not configured. Add it in Settings → Social Media.");
+
+      const tweetRes = await fetch("https://api.twitter.com/2/tweets", {
+        method:  "POST",
+        headers: {
+          "Content-Type":  "application/json",
+          "Authorization": `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ text: caption.slice(0, 280) }),
+      });
+
+      if (!tweetRes.ok) {
+        const err = await tweetRes.json().catch(() => ({}));
+        throw new Error(err?.detail ?? err?.errors?.[0]?.message ?? `Twitter HTTP ${tweetRes.status}`);
+      }
+
+      const tweetData = await tweetRes.json();
+      const postId    = tweetData?.data?.id;
+      return res.json({ ok: true, postUrl: postId ? `https://twitter.com/i/web/status/${postId}` : null });
+    }
+
+    if (platform === "facebook") {
+      const { pageId, pageAccessToken } = tokens.facebook ?? {};
+      if (!pageId || !pageAccessToken) throw new Error("Facebook Page ID and access token not configured. Add them in Settings → Social Media.");
+
+      // Post with image if URL provided, otherwise text-only
+      const endpoint = imageUrl
+        ? `https://graph.facebook.com/v19.0/${pageId}/photos`
+        : `https://graph.facebook.com/v19.0/${pageId}/feed`;
+
+      const body = imageUrl
+        ? { url: imageUrl, caption, access_token: pageAccessToken }
+        : { message: caption, access_token: pageAccessToken };
+
+      const fbRes  = await fetch(endpoint, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!fbRes.ok) {
+        const err = await fbRes.json().catch(() => ({}));
+        throw new Error(err?.error?.message ?? `Facebook HTTP ${fbRes.status}`);
+      }
+
+      const fbData = await fbRes.json();
+      const postId = fbData?.post_id ?? fbData?.id;
+      return res.json({ ok: true, postUrl: postId ? `https://facebook.com/${postId}` : null });
+    }
+
+    if (platform === "instagram") {
+      const { userId, accessToken } = tokens.instagram ?? {};
+      if (!userId || !accessToken) throw new Error("Instagram User ID and access token not configured. Add them in Settings → Social Media.");
+
+      if (!imageUrl) throw new Error("Instagram requires an image URL.");
+
+      // Step 1: create media container
+      const createRes = await fetch(`https://graph.facebook.com/v19.0/${userId}/media`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image_url: imageUrl, caption, access_token: accessToken }),
+      });
+
+      if (!createRes.ok) {
+        const err = await createRes.json().catch(() => ({}));
+        throw new Error(err?.error?.message ?? `Instagram create HTTP ${createRes.status}`);
+      }
+
+      const { id: creationId } = await createRes.json();
+
+      // Step 2: publish container
+      const publishRes = await fetch(`https://graph.facebook.com/v19.0/${userId}/media_publish`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ creation_id: creationId, access_token: accessToken }),
+      });
+
+      if (!publishRes.ok) {
+        const err = await publishRes.json().catch(() => ({}));
+        throw new Error(err?.error?.message ?? `Instagram publish HTTP ${publishRes.status}`);
+      }
+
+      const { id: postId } = await publishRes.json();
+      return res.json({ ok: true, postUrl: `https://www.instagram.com/p/${postId}/` });
+    }
+
+    res.status(400).json({ error: "unknown platform" });
+  } catch (e) {
+    console.error(`[Social/${platform}]`, e.message);
+    res.status(502).json({ error: e.message });
+  }
+});
+
 // ── Serve built React app in production ──────────────────────────────────────
 if (process.env.NODE_ENV === "production") {
   const dist = join(__dirname, "../dist");
