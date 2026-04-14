@@ -1,0 +1,242 @@
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #0b0b0b;
+  --bg-secondary: #121212;
+  --bg-card: #181818;
+  --bg-card-hover: #1e1e1e;
+  --gold: #c9a84c;
+  --gold-light: #e8c97a;
+  --gold-dark: #a0782a;
+  --gold-dim: rgba(201, 168, 76, 0.12);
+  --gold-border: rgba(201, 168, 76, 0.18);
+  --gold-glow: rgba(201, 168, 76, 0.08);
+  --text-primary: #ede8df;
+  --text-secondary: #8a847c;
+  --text-muted: #4a4642;
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --glass: rgba(255, 255, 255, 0.02);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbars ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gold-border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+/* ── Typography ─────────────────────────────────────────── */
+.font-serif { font-family: 'Playfair Display', Georgia, serif; }
+.font-mono  { font-family: 'JetBrains Mono', monospace; }
+
+/* ── Gold divider ───────────────────────────────────────── */
+.gold-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-border), transparent);
+}
+
+/* ── Article Markdown Styles ────────────────────────────── */
+.article-content h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.25;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.01em;
+}
+.article-content h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--gold-light);
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.01em;
+}
+.article-content h3 {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+}
+.article-content p {
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  color: var(--text-primary);
+  margin-bottom: 1.25rem;
+  font-weight: 300;
+}
+.article-content ul, .article-content ol {
+  margin: 0.75rem 0 1.25rem 1.5rem;
+}
+.article-content li {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+  font-weight: 300;
+}
+.article-content li::marker { color: var(--gold); }
+.article-content strong {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.article-content em {
+  font-style: italic;
+  color: var(--text-secondary);
+}
+.article-content blockquote {
+  border-left: 2px solid var(--gold);
+  padding: 0.75rem 1.25rem;
+  margin: 1.5rem 0;
+  background: var(--gold-dim);
+  border-radius: 0 4px 4px 0;
+}
+.article-content blockquote p {
+  margin-bottom: 0;
+  font-style: italic;
+  color: var(--gold-light);
+}
+.article-content code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+  background: rgba(201,168,76,0.08);
+  color: var(--gold-light);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+.article-content hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-border), transparent);
+  margin: 2rem 0;
+}
+
+/* ── Animations ─────────────────────────────────────────── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card-hover) 50%, var(--bg-card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite;
+  border-radius: 4px;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.45s ease forwards; }
+
+@keyframes pulse-gold {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+.pulse-gold { animation: pulse-gold 2s ease-in-out infinite; }
+
+/* ── Infographic Styles ─────────────────────────────────────── */
+.infographic-card {
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,168,76,0.08);
+}
+
+.infographic-content h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gold-light);
+  margin-top: 1.75rem;
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.01em;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--gold-border);
+}
+
+.infographic-content p:first-of-type::first-letter {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--gold);
+  float: left;
+  line-height: 0.8;
+  margin-right: 0.12em;
+  margin-top: 0.06em;
+}
+
+.infographic-content blockquote {
+  border-left: 3px solid var(--gold);
+  padding: 1rem 1.5rem;
+  margin: 1.75rem 0;
+  background: var(--gold-dim);
+  border-radius: 0 8px 8px 0;
+}
+
+.infographic-content blockquote p {
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--gold-light);
+  margin-bottom: 0;
+}
+
+.infographic-content blockquote p::first-letter {
+  font-size: unset;
+  float: none;
+  line-height: unset;
+  margin: 0;
+  color: var(--gold-light);
+}
+
+.grid.grid-cols-4.divide-x > * + * {
+  border-left: 1px solid var(--border-subtle);
+}
+
+/* ── Print Styles ───────────────────────────────────────────── */
+@media print {
+  body { background: #fff !important; color: #111 !important; }
+
+  header, aside, footer,
+  .flex-shrink-0:not(#infographic-print),
+  [class*="status"], [class*="banner"] {
+    display: none !important;
+  }
+
+  main {
+    display: block !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  #infographic-print {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  #infographic-print img { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+
+  .article-content p, .infographic-content p { color: #222 !important; }
+  .article-content h2, .infographic-content h2 { color: #8a6a2a !important; }
+}

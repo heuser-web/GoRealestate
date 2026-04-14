@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: gorealestate
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VENICE_API_KEY
+        sync: false
+      - key: VENICE_MODEL
+        value: llama-3.3-70b
