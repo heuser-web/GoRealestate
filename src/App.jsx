@@ -899,7 +899,7 @@ export default function App() {
             <div>
               <div className="flex items-center gap-1.5">
                 <TrendingUp className="w-3.5 h-3.5" style={{ color: "var(--gold)" }} />
-                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-primary)" }}>Weekly Questions</span>
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-primary)" }}>AI-Curated Questions</span>
               </div>
               {weekLabel && <p className="text-[10px] font-mono mt-0.5" style={{ color: "var(--text-muted)" }}>{weekLabel}</p>}
             </div>
@@ -955,7 +955,7 @@ export default function App() {
               </div>
               <div className="gold-divider mt-3 mb-1" />
               <p className="text-[9px] font-mono uppercase tracking-widest mb-1 px-1 mt-3"
-                 style={{ color: "var(--text-muted)" }}>All Questions</p>
+                 style={{ color: "var(--text-muted)" }}>Tom's Picks</p>
             </div>
           )}
 

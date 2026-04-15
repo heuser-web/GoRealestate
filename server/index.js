@@ -68,6 +68,10 @@ const SEMRUSH_PHRASES = [
   "Clark County real estate",
   "Henderson Nevada homes",
   "Summerlin Las Vegas homes",
+  "Las Vegas luxury real estate",
+  "relocating to Las Vegas",
+  "Las Vegas real estate investment",
+  "selling home Las Vegas",
 ];
 
 async function fetchSEMrushQuestions(phrase, apiKey) {
@@ -123,21 +127,31 @@ async function pullWeeklyQuestions() {
     return getSeedQuestions();
   }
 
-  return all.sort((a, b) => b.volume - a.volume).slice(0, 10);
+  return all.sort((a, b) => b.volume - a.volume).slice(0, 20);
 }
 
 function getSeedQuestions() {
   return [
-    { keyword: "what is the cost of living in Las Vegas",              volume: 140, difficulty: 21 },
-    { keyword: "what is it like living in Las Vegas",                  volume: 140, difficulty: 15 },
-    { keyword: "is living in Las Vegas expensive",                     volume: 140, difficulty: 11 },
-    { keyword: "are home prices dropping in Las Vegas",                volume: 30,  difficulty: 0  },
-    { keyword: "how to buy a home in Las Vegas",                       volume: 30,  difficulty: 0  },
-    { keyword: "how is the real estate market in Las Vegas right now", volume: 20,  difficulty: 0  },
-    { keyword: "is Las Vegas real estate a good investment",           volume: 20,  difficulty: 0  },
-    { keyword: "is Las Vegas real estate overpriced",                  volume: 20,  difficulty: 0  },
-    { keyword: "will the housing market crash in Las Vegas",           volume: 20,  difficulty: 0  },
-    { keyword: "what is the average home price in Las Vegas",          volume: 20,  difficulty: 0  },
+    { keyword: "what is the cost of living in Las Vegas",                     volume: 140, difficulty: 21 },
+    { keyword: "what is it like living in Las Vegas",                         volume: 140, difficulty: 15 },
+    { keyword: "is living in Las Vegas expensive",                            volume: 140, difficulty: 11 },
+    { keyword: "are home prices dropping in Las Vegas",                       volume:  30, difficulty:  0 },
+    { keyword: "how to buy a home in Las Vegas",                              volume:  30, difficulty:  0 },
+    { keyword: "how is the real estate market in Las Vegas right now",        volume:  20, difficulty:  0 },
+    { keyword: "is Las Vegas real estate a good investment",                  volume:  20, difficulty:  0 },
+    { keyword: "is Las Vegas real estate overpriced",                         volume:  20, difficulty:  0 },
+    { keyword: "will the housing market crash in Las Vegas",                  volume:  20, difficulty:  0 },
+    { keyword: "what is the average home price in Las Vegas",                 volume:  20, difficulty:  0 },
+    { keyword: "best neighborhoods in Las Vegas for families",                volume:  18, difficulty:  5 },
+    { keyword: "Summerlin vs Henderson Las Vegas which is better",            volume:  16, difficulty:  3 },
+    { keyword: "how much do you need to make to buy a house in Las Vegas",   volume:  15, difficulty:  2 },
+    { keyword: "is now a good time to sell a home in Las Vegas",              volume:  14, difficulty:  2 },
+    { keyword: "Las Vegas luxury homes for sale Summerlin",                   volume:  12, difficulty:  8 },
+    { keyword: "moving from California to Las Vegas pros and cons",           volume:  25, difficulty:  6 },
+    { keyword: "Las Vegas housing market forecast",                           volume:  22, difficulty:  4 },
+    { keyword: "what to know before buying a home in Las Vegas",              volume:  18, difficulty:  3 },
+    { keyword: "guard gated communities Las Vegas",                           volume:  10, difficulty:  2 },
+    { keyword: "how long does it take to sell a house in Las Vegas",          volume:   8, difficulty:  1 },
   ];
 }
 
@@ -151,17 +165,21 @@ async function runWeeklyPull() {
     return { week, questions: history[week].questions };
   }
 
-  const questions = await pullWeeklyQuestions();
+  const rawQuestions = await pullWeeklyQuestions();
+  console.log(`[SEMrush] ✓ ${rawQuestions.length} raw questions fetched — running Tom's curation agent…`);
+
+  const questions = await selectTop10ByAgent(rawQuestions);
 
   history[week] = {
     fetchedAt:         new Date().toISOString(),
+    rawQuestions,
     questions,
     articlesGenerated: history[week]?.articlesGenerated ?? 0,
     top3:              history[week]?.top3 ?? [],
   };
 
   writeJSON(HISTORY_FILE, pruneHistory(history));
-  console.log(`[SEMrush] ✓ ${questions.length} questions stored for ${week}`);
+  console.log(`[SEMrush] ✓ ${questions.length} curated questions stored for ${week}`);
   return { week, questions };
 }
 
@@ -297,10 +315,22 @@ Tom's take on mortgage jargon: "I've been in rooms with some of the sharpest peo
 When writing about financing, interest rates, or purchasing power — use this edge. Explain it the way Tom would explain it to a smart client who doesn't have a mortgage background.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SECTION 6 — REAL STORIES TO DRAW FROM (USE NATURALLY)
+SECTION 6 — REAL STORIES TO DRAW FROM (STRICT RULES APPLY)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-These are real moments from Tom's career. Weave them into articles when they genuinely serve the point. Do not force them all into one piece.
+STORYTELLING RULES — READ BEFORE USING ANY STORY:
+
+1. MAXIMUM ONE STORY PER ARTICLE. One well-placed story that serves the article's central point. Not two, not three. One or zero.
+
+2. ONLY USE STORIES FROM THIS LIST. Do not invent client scenarios or transactions Tom never described. Never write "We had a client who..." unless the example below is real and documented. If you need an illustrative example for a buyer/seller, keep it brief, clearly framed as a market pattern ("buyers we work with typically..."), not a specific unnamed transaction with invented dollar amounts.
+
+3. KEEP ALL NUMBERS CONSERVATIVE AND VERIFIABLE. When citing equity amounts, sale prices, or transaction outcomes, stay within realistic market ranges. Do not inflate numbers to make a point land harder. An Orange County seller arriving with $500K in equity is plausible and honest. "$1.4M equity" is a stretch unless you're quoting verified data. The reader deserves accuracy, not drama.
+
+4. NO EMBELLISHMENT. The story should be told plainly — what happened, what it meant. Do not add emotional color that wasn't in the original. Tom is measured, not theatrical.
+
+5. SKIP THE STORY ENTIRELY if the article's topic doesn't need one. Market data, financing mechanics, and neighborhood guides often stand stronger without a personal anecdote. The article does not require a story to be good. A pointless story is worse than no story.
+
+These are real moments from Tom's career. Weave them into articles only when they genuinely serve the point. Do not force them all into one piece.
 
 THE 100-DEAL GOAL:
 Tom walked into a large Las Vegas brokerage with Serena and told the broker they were going to do 100 transactions a year. The broker laughed them out of the room. Serena was mortified in the parking lot. That moment of being dismissed became fuel. Two years later, they proved him wrong.
@@ -479,6 +509,11 @@ SEO context:
 
 Audience: luxury buyers and sellers in the Las Vegas Valley, $800K–$2M+ range, with a heavy focus on Summerlin, Henderson, MacDonald Highlands, and guard-gated communities in Clark County, Nevada. Many readers are relocating from California, Washington, or New York with significant equity.
 
+Current Las Vegas market context (reference this naturally where it strengthens the article — do not dump all stats, pick what's relevant):
+- Current benchmarks: median SFR ~$470K–$480K; luxury tier ($1M+) averaging 128+ closings/month; average days on market 72–86 days; cash transactions ~22%; months of supply ~3–4
+- If the market has been shifting — rising DOM, price reductions picking up, inventory ticking up, or rate environment changing — acknowledge it plainly. Tom does not sugarcoat market conditions. Buyers and sellers deserve the real read.
+- Source: lasvegasrealtor.com/housing-market-statistics/ — always frame stats as approximate benchmarks, not gospel.
+
 Write conversationally in Tom and Serena's voice — as if Tom is having coffee with a client and explaining exactly what they need to know. Use "we" and "our" naturally to reflect the Magenta Real Estate partnership. Start with a hook, not a warm-up. Include at least one specific neighborhood, ZIP code, or real-world market insight. End with a genuine, pressure-free invitation to connect through GoRealestate.`;
 
   const res = await fetch(VENICE_URL, {
@@ -571,6 +606,96 @@ Example: [3, 7, 1]`;
   } catch (e) {
     console.warn("[Agent] Selection failed, falling back to volume order:", e.message);
     return questions.slice(0, 3);
+  }
+}
+
+// ── AI Curation Agent: rank top 10 from raw pool, avoid recent repeats ────────
+async function selectTop10ByAgent(rawQuestions) {
+  const apiKey = process.env.VENICE_API_KEY;
+  if (!apiKey || apiKey === "your_venice_api_key_here") {
+    console.warn("[CurateAgent] Venice key not set — using top 10 by volume");
+    return rawQuestions.slice(0, 10);
+  }
+
+  // Gather keywords published in the past 8 weeks so we don't repeat them
+  const history       = readJSON(HISTORY_FILE, {});
+  const currentWeek   = getISOWeek();
+  const recentKeywords = new Set();
+  for (const [wk, data] of Object.entries(history)) {
+    if (wk === currentWeek) continue;
+    const qs = data.rawQuestions ?? data.questions ?? [];
+    qs.forEach((q) => q.keyword && recentKeywords.add(q.keyword.toLowerCase()));
+  }
+  const recentList = [...recentKeywords].slice(0, 40).join("; ") || "none yet";
+
+  const questionList = rawQuestions
+    .map((q, i) => `${i + 1}. "${q.keyword}" — ${q.volume ?? 0}/mo searches, KD ${q.difficulty ?? 0}`)
+    .join("\n");
+
+  const curatePrompt = `You are the editorial content strategist for GoRealestate — a Las Vegas luxury real estate team led by Tom and Serena Heuser of Magenta Real Estate. They serve the $800K–$2M+ Summerlin and Henderson market.
+
+From this week's ${rawQuestions.length} SEMrush questions, select and rank the 10 best for editorial infographic articles.
+
+RANKING CRITERIA (in priority order):
+1. PURCHASE INTENT — Is the searcher likely close to a buying or selling decision?
+2. LOCAL EXPERTISE — Can a Las Vegas/Summerlin specialist add unique insight that generic content cannot?
+3. TOPIC DIVERSITY — Cover a healthy mix: buyer topics, seller topics, neighborhoods, financing, market conditions.
+4. TIMING — Is this question relevant to what Las Vegas buyers and sellers are thinking about right now?
+5. SEARCH DEMAND — Higher search volume is preferred but is NOT the only factor.
+6. FRESHNESS — Strongly avoid repeating topics recently covered (listed below). Only revisit them if the market has dramatically changed.
+
+RECENTLY COVERED TOPICS (avoid unless market has significantly changed):
+${recentList}
+
+QUESTIONS TO EVALUATE THIS WEEK:
+${questionList}
+
+Respond with ONLY a JSON array of exactly 10 integers (1-based question numbers, ranked best-first).
+Example: [3, 7, 1, 5, 9, 2, 8, 4, 6, 10]`;
+
+  try {
+    const res = await fetch(VENICE_URL, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+      body:    JSON.stringify({
+        model:       VENICE_MODEL,
+        temperature: 0.3,
+        max_tokens:  60,
+        messages: [
+          { role: "system", content: "Output only a valid JSON array of integers. No text, no markdown, no explanation." },
+          { role: "user",   content: curatePrompt },
+        ],
+      }),
+    });
+
+    const data    = await res.json();
+    const raw     = data.choices?.[0]?.message?.content?.trim() ?? "[]";
+    const cleaned = raw.replace(/```[a-z]*|```/gi, "").trim();
+    const indices = JSON.parse(cleaned);
+
+    if (!Array.isArray(indices) || indices.length < 1) throw new Error("invalid response");
+
+    const curated = indices
+      .slice(0, 10)
+      .map((n) => rawQuestions[Number(n) - 1])
+      .filter(Boolean);
+
+    if (curated.length < 3) throw new Error("too few valid indices returned");
+
+    // Pad with highest-volume uncovered questions if agent returned < 10
+    if (curated.length < 10) {
+      const used = new Set(curated.map((q) => q.keyword));
+      for (const q of rawQuestions) {
+        if (curated.length >= 10) break;
+        if (!used.has(q.keyword)) curated.push(q);
+      }
+    }
+
+    console.log(`[CurateAgent] ✓ ${curated.length} questions curated from ${rawQuestions.length} raw`);
+    return curated;
+  } catch (e) {
+    console.warn("[CurateAgent] Curation failed, falling back to volume order:", e.message);
+    return rawQuestions.slice(0, 10);
   }
 }
 
