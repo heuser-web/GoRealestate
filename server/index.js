@@ -769,13 +769,26 @@ app.get("/api/top3", (_, res) => {
 });
 
 // POST /api/auto-generate — AI agent selects top 3, generates all 3 articles
+// Uses chunked keep-alive pings to prevent Render's 30-second idle timeout
+// from dropping the connection during long Venice AI generation.
 app.post("/api/auto-generate", async (_, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.flushHeaders();                          // establish connection immediately
+
+  // Send a newline every 20 s — JSON.parse ignores leading whitespace, so this
+  // keeps Render's proxy satisfied without corrupting the final payload.
+  const ping = setInterval(() => {
+    try { res.write("\n"); } catch (_) {}
+  }, 20_000);
+
   try {
     const result = await autoGenerateTop3();
-    res.json(result);
+    clearInterval(ping);
+    res.end(JSON.stringify(result));
   } catch (e) {
+    clearInterval(ping);
     console.error("[/api/auto-generate]", e.message);
-    res.status(502).json({ error: e.message });
+    res.end(JSON.stringify({ error: e.message }));
   }
 });
 

@@ -92,9 +92,13 @@ async function generateArticle(question) {
 }
 
 async function triggerAutoGenerate() {
-  const r = await fetch("/api/auto-generate", { method: "POST" });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
+  const r    = await fetch("/api/auto-generate", { method: "POST" });
+  const text = await r.text();
+  let data;
+  try { data = JSON.parse(text.trim()); }
+  catch { throw new Error("Generation timed out or returned an empty response. Try again."); }
+  if (data?.error) throw new Error(data.error);
+  return data;
 }
 
 async function refreshQuestions() {
