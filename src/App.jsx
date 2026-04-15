@@ -331,10 +331,10 @@ function WelcomeScreen({ questionCount, articleCount, top3Count }) {
            style={{ background: "var(--gold-dim)", border: "1px solid var(--gold-border)" }}>
         <Home className="w-8 h-8" style={{ color: "var(--gold)" }} />
       </div>
-      <h2 className="font-serif text-3xl mb-3" style={{ color: "var(--text-primary)" }}>Las Vegas Luxury Market</h2>
+      <h2 className="font-serif text-3xl mb-3" style={{ color: "var(--text-primary)" }}>Las Vegas Luxury Infographics</h2>
       <p className="text-sm mb-8 max-w-md leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-        Click <strong style={{ color: "var(--gold)" }}>Generate Top 3</strong> to let the AI agent automatically select
-        the highest-impact questions and write beautiful infographic articles — or pick any question manually from the left.
+        Click <strong style={{ color: "var(--gold)" }}>Generate Top 3</strong> to let the AI agent select
+        the highest-impact questions and write editorial infographics in Tom Heuser's voice — or pick any question manually from the left.
       </p>
       <div className="grid grid-cols-3 gap-4 w-full max-w-sm mb-8">
         {[
@@ -448,20 +448,22 @@ function ArticleView({ article, onCopy, copied, viewMode, onViewMode, onRegenera
   );
 }
 
-// ── Infographic View ──────────────────────────────────────────────────────────
+// ── Infographic View — editorial two-column layout ───────────────────────────
 function InfographicView({ article, onCopy, copied, viewMode, onViewMode, onRegenerate, isRegenerating, onSocialShare }) {
   const photo     = photoForArticle(article.id);
   const wordCount = countWords(article.content);
   const title     = extractTitle(article.content) || article.keyword;
   const body      = bodyWithoutTitle(article.content);
-  const photoUrl  = `https://images.unsplash.com/photo-${photo.id}?auto=format&fit=crop&w=1200&q=80`;
+  const photoUrl  = `https://images.unsplash.com/photo-${photo.id}?auto=format&fit=crop&w=900&q=85`;
+  const dateStr   = new Date(article.generatedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
   function handlePrint() { window.print(); }
 
   return (
     <motion.div key={article.id + "-ig"} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
                 className="h-full flex flex-col">
-      {/* Toolbar */}
+
+      {/* ── Toolbar ── */}
       <div className="flex items-center justify-between mb-5 flex-shrink-0 flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <span className="px-2.5 py-1 rounded-md text-[10px] font-mono uppercase tracking-wider"
@@ -470,7 +472,7 @@ function InfographicView({ article, onCopy, copied, viewMode, onViewMode, onRege
           </span>
           {article.isTop3 && (
             <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono"
-                  style={{ background: "rgba(201,168,76,0.15)", color: "var(--gold)", border: "1px solid var(--gold-border)" }}>
+                  style={{ background: "var(--gold-dim)", color: "var(--gold)", border: "1px solid var(--gold-border)" }}>
               <Star className="w-2.5 h-2.5" style={{ fill: "var(--gold)" }} /> AI Top Pick
             </span>
           )}
@@ -492,15 +494,13 @@ function InfographicView({ article, onCopy, copied, viewMode, onViewMode, onRege
               <Layout className="w-3 h-3" /> Infographic
             </button>
           </div>
-          <button
-            onClick={handlePrint}
+          <button onClick={handlePrint}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)", color: "var(--text-secondary)" }}
           >
             <Printer className="w-3.5 h-3.5" /> Print / PDF
           </button>
-          <button
-            onClick={onCopy}
+          <button onClick={onCopy}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all"
             style={{
               background: copied ? "rgba(16,185,129,0.1)" : "var(--bg-card)",
@@ -511,9 +511,7 @@ function InfographicView({ article, onCopy, copied, viewMode, onViewMode, onRege
             {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
             {copied ? "Copied" : "Copy"}
           </button>
-          <button
-            onClick={onRegenerate}
-            disabled={isRegenerating}
+          <button onClick={onRegenerate} disabled={isRegenerating}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all disabled:opacity-40"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)", color: "var(--text-secondary)" }}
             title="Regenerate article"
@@ -521,10 +519,9 @@ function InfographicView({ article, onCopy, copied, viewMode, onViewMode, onRege
             <RotateCcw className={`w-3.5 h-3.5 ${isRegenerating ? "animate-spin" : ""}`} />
             {isRegenerating ? "Regenerating…" : "Regenerate"}
           </button>
-          <button
-            onClick={onSocialShare}
+          <button onClick={onSocialShare}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all"
-            style={{ background: "var(--gold-dim)", border: "1px solid var(--gold-border)", color: "var(--gold-light)" }}
+            style={{ background: "var(--gold-dim)", border: "1px solid var(--gold-border)", color: "var(--gold)" }}
             title="Share to social media"
           >
             <Share2 className="w-3.5 h-3.5" /> Share
@@ -532,93 +529,107 @@ function InfographicView({ article, onCopy, copied, viewMode, onViewMode, onRege
         </div>
       </div>
 
-      {/* Infographic card */}
+      {/* ── Editorial card ── */}
       <div className="flex-1 overflow-y-auto">
-        <div id="infographic-print" className="max-w-2xl mx-auto rounded-2xl overflow-hidden infographic-card"
-             style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-secondary)" }}>
+        <div id="infographic-print" className="mx-auto rounded-2xl overflow-hidden infographic-card"
+             style={{ maxWidth: "920px", border: "1px solid var(--border-subtle)", background: "var(--bg-secondary)" }}>
 
-          {/* Hero photo */}
-          <div className="relative overflow-hidden" style={{ height: "280px" }}>
-            <img
-              src={photoUrl}
-              alt={photo.alt}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                e.target.style.display = "none";
-                e.target.parentElement.style.background = "linear-gradient(135deg, #1a1205 0%, #2a1e0a 100%)";
-              }}
-            />
-            <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.1) 100%)" }}>
-              <div className="absolute bottom-0 left-0 right-0 p-8">
-                <div className="flex items-center gap-2 mb-3 flex-wrap">
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider"
-                        style={{ background: "var(--gold)", color: "#0b0b0b", fontWeight: 600 }}>
-                    Las Vegas · Clark County
-                  </span>
-                  {article.isTop3 && (
-                    <span className="px-2.5 py-1 rounded-full text-[10px] font-mono uppercase tracking-wider"
-                          style={{ background: "rgba(255,255,255,0.12)", color: "#fff", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.15)" }}>
-                      ★ AI Top Pick
+          {/* Two-column: photo left · content right */}
+          <div style={{ display: "flex", alignItems: "stretch", minHeight: "540px" }}>
+
+            {/* Left — photo panel */}
+            <div style={{ width: "42%", flexShrink: 0, position: "relative", minHeight: "540px" }}>
+              <img
+                src={photoUrl}
+                alt={photo.alt}
+                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+                onError={(e) => {
+                  e.target.style.display = "none";
+                  e.target.parentElement.style.background = "linear-gradient(160deg, var(--bg-card) 0%, var(--bg-card-hover) 100%)";
+                }}
+              />
+              {/* Gradient overlay — badges at bottom */}
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.18) 50%, transparent 100%)" }}>
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "24px" }}>
+                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "8px" }}>
+                    <span style={{ padding: "3px 10px", borderRadius: 999, background: "var(--gold)", color: "#fff", fontSize: "0.58rem", fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700 }}>
+                      Las Vegas · Clark County
                     </span>
-                  )}
+                    {article.isTop3 && (
+                      <span style={{ padding: "3px 10px", borderRadius: 999, background: "rgba(255,255,255,0.18)", color: "#fff", backdropFilter: "blur(4px)", border: "1px solid rgba(255,255,255,0.22)", fontSize: "0.58rem", fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.1em" }}>
+                        ★ AI Top Pick
+                      </span>
+                    )}
+                  </div>
+                  <p style={{ fontSize: "0.6rem", color: "rgba(255,255,255,0.5)", fontFamily: "monospace" }}>{photo.alt}</p>
                 </div>
-                <h1 className="font-serif text-white leading-tight" style={{ fontSize: "1.6rem", fontWeight: 700 }}>{title}</h1>
-                <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.6)" }}>
-                  GoRealestate · Las Vegas, NV · Buyers &amp; Sellers · $500K–$1.5M Market
-                </p>
               </div>
             </div>
-          </div>
 
-          {/* Stats bar */}
-          <div className="grid grid-cols-4 divide-x"
-               style={{ borderBottom: "1px solid var(--border-subtle)", background: "var(--bg-card)", borderColor: "var(--border-subtle)" }}>
-            {[
-              { label: "Monthly Searches", value: formatVolume(article.volume ?? 0) },
-              { label: "Word Count",       value: wordCount                          },
-              { label: "Market Range",     value: "$500K–$1.5M"                      },
-              { label: "Territory",        value: "Las Vegas, NV"                    },
-            ].map(({ label, value }) => (
-              <div key={label} className="px-4 py-3 text-center" style={{ borderColor: "var(--border-subtle)" }}>
-                <div className="font-mono text-sm font-semibold" style={{ color: "var(--gold)" }}>{value}</div>
-                <div className="text-[10px] mt-0.5" style={{ color: "var(--text-muted)" }}>{label}</div>
+            {/* Right — article content */}
+            <div style={{ flex: 1, padding: "44px 48px 36px", display: "flex", flexDirection: "column", background: "var(--bg-secondary)", minWidth: 0 }}>
+
+              {/* Eyebrow */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "22px" }}>
+                <span style={{ fontSize: "0.6rem", fontFamily: "monospace", textTransform: "uppercase", letterSpacing: "0.14em", color: "var(--gold)", display: "flex", alignItems: "center", gap: "5px" }}>
+                  <Home className="w-3 h-3" style={{ color: "var(--gold)" }} />
+                  GoRealestate · Infographics
+                </span>
+                <span style={{ fontSize: "0.62rem", color: "var(--text-muted)", fontFamily: "monospace" }}>{dateStr}</span>
               </div>
-            ))}
-          </div>
 
-          {/* Article body */}
-          <div className="p-8 pb-10" style={{ background: "var(--bg-primary)" }}>
-            <article className="article-content infographic-content max-w-none">
-              <ReactMarkdown>{body}</ReactMarkdown>
-            </article>
+              {/* Stats row */}
+              <div style={{ display: "flex", gap: "22px", marginBottom: "22px", paddingBottom: "18px", borderBottom: "1px solid var(--border-subtle)" }}>
+                {[
+                  { label: "Searches/mo", value: formatVolume(article.volume ?? 0) },
+                  { label: "Words",        value: wordCount                          },
+                  { label: "Market",       value: "$800K–$2M+"                       },
+                  { label: "Territory",    value: "Las Vegas"                        },
+                ].map(({ label, value }) => (
+                  <div key={label}>
+                    <div style={{ fontFamily: "monospace", fontSize: "0.85rem", fontWeight: 600, color: "var(--gold)", lineHeight: 1 }}>{value}</div>
+                    <div style={{ fontSize: "0.58rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginTop: 4 }}>{label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Title */}
+              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: "1.7rem", fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.2, marginBottom: "18px", letterSpacing: "-0.01em" }}>
+                {title}
+              </h1>
+
+              {/* Rule */}
+              <div style={{ height: 1, background: "linear-gradient(90deg, var(--gold-border), transparent)", marginBottom: "20px" }} />
+
+              {/* Body */}
+              <div style={{ flex: 1 }}>
+                <article className="article-content infographic-content max-w-none">
+                  <ReactMarkdown>{body}</ReactMarkdown>
+                </article>
+              </div>
+            </div>
           </div>
 
           {/* Footer */}
-          <div className="px-8 py-5 flex items-center justify-between flex-wrap gap-3"
-               style={{ background: "var(--bg-secondary)", borderTop: "1px solid var(--border-subtle)" }}>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-                   style={{ background: "var(--gold-dim)", border: "1px solid var(--gold-border)" }}>
-                <Home className="w-4 h-4" style={{ color: "var(--gold)" }} />
+          <div style={{ padding: "14px 48px", display: "flex", alignItems: "center", justifyContent: "space-between", borderTop: "1px solid var(--border-subtle)", background: "var(--bg-card)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <div style={{ width: 30, height: 30, borderRadius: 8, background: "var(--gold-dim)", border: "1px solid var(--gold-border)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <Home className="w-3.5 h-3.5" style={{ color: "var(--gold)" }} />
               </div>
               <div>
-                <p className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>GoRealestate</p>
-                <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>Las Vegas · Henderson · Summerlin · Clark County</p>
+                <p style={{ fontSize: "0.7rem", fontWeight: 600, color: "var(--text-primary)", lineHeight: 1.2 }}>GoRealestate</p>
+                <p style={{ fontSize: "0.6rem", color: "var(--text-muted)" }}>Tom &amp; Serena Heuser · Las Vegas, NV</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-[10px] font-mono" style={{ color: "var(--text-muted)" }}>
-                {new Date(article.generatedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-              </p>
-              <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>
-                Photo: {photo.alt}
-              </p>
+            <div style={{ textAlign: "right" }}>
+              <p style={{ fontSize: "0.6rem", color: "var(--text-muted)", fontFamily: "monospace" }}>{dateStr}</p>
+              <p style={{ fontSize: "0.58rem", color: "var(--text-muted)" }}>Photo via Unsplash</p>
             </div>
           </div>
         </div>
 
         <p className="text-center text-[10px] mt-3 pb-6" style={{ color: "var(--text-muted)" }}>
-          Photo via Unsplash · {photo.alt}
+          {photo.alt} · Unsplash
         </p>
       </div>
     </motion.div>
@@ -821,9 +832,9 @@ export default function App() {
             <Home className="w-4 h-4" style={{ color: "var(--gold)" }} />
           </div>
           <div>
-            <h1 className="font-serif text-lg font-semibold leading-none" style={{ color: "var(--text-primary)" }}>GoRealestate</h1>
+            <h1 className="font-serif text-lg font-semibold leading-none" style={{ color: "var(--text-primary)" }}>Infographics</h1>
             <p className="text-[10px] mt-0.5 font-mono uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-              Las Vegas · Clark County · $500K–$1.5M · Market Intelligence
+              GoRealestate · Las Vegas · Summerlin · $800K–$2M+ Market
             </p>
           </div>
         </div>
@@ -906,7 +917,7 @@ export default function App() {
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold transition-all disabled:opacity-50"
               style={{
                 background:   isAutoGen ? "var(--gold-dim)" : "var(--gold)",
-                color:        isAutoGen ? "var(--gold)"     : "#0b0b0b",
+                color:        isAutoGen ? "var(--gold)"     : "#ffffff",
                 border:       "1px solid var(--gold-border)",
               }}
             >
@@ -1038,9 +1049,9 @@ export default function App() {
           <div className="flex-shrink-0 flex items-center justify-between px-10 py-2.5"
                style={{ borderTop: "1px solid var(--border-subtle)", background: "var(--bg-secondary)" }}>
             <span className="text-[10px] font-mono" style={{ color: "var(--text-muted)" }}>
-              Pipeline: SEMrush → AI Agent → Venice AI → Infographic · Las Vegas $500K–$1.5M
+              SEMrush → AI Agent → Venice AI → Infographics · Summerlin · Henderson · $800K–$2M+
             </span>
-            <span className="text-[10px] font-mono" style={{ color: "var(--text-muted)" }}>GoRealestate Intelligence v2.0</span>
+            <span className="text-[10px] font-mono" style={{ color: "var(--text-muted)" }}>GoRealestate · Infographics v2.0</span>
           </div>
         </main>
 

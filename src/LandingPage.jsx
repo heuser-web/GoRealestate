@@ -81,7 +81,7 @@ export default function LandingPage({ onEnter, stats }) {
       for (const p of particles) {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(201,168,76,${p.a})`;
+        ctx.fillStyle = `rgba(140,109,31,${p.a * 0.5})`;
         ctx.fill();
         p.x += p.vx;
         p.y += p.vy;
@@ -109,7 +109,7 @@ export default function LandingPage({ onEnter, stats }) {
         <canvas ref={canvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }} />
 
         {/* Radial glow behind headline */}
-        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -60%)", width: "700px", height: "500px", background: "radial-gradient(ellipse at center, rgba(201,168,76,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -60%)", width: "700px", height: "500px", background: "radial-gradient(ellipse at center, rgba(140,109,31,0.05) 0%, transparent 70%)", pointerEvents: "none" }} />
 
         {/* Nav bar */}
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "24px 40px", borderBottom: "1px solid var(--border-subtle)" }}>
@@ -158,10 +158,10 @@ export default function LandingPage({ onEnter, stats }) {
 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, flexWrap: "wrap" }}>
             <motion.button
-              whileHover={{ scale: 1.03, boxShadow: "0 0 32px rgba(201,168,76,0.25)" }}
+              whileHover={{ scale: 1.03, boxShadow: "0 8px 32px rgba(140,109,31,0.25)" }}
               whileTap={{ scale: 0.97 }}
               onClick={onEnter}
-              style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 32px", borderRadius: 999, background: "var(--gold)", color: "#0b0b0b", fontSize: "0.88rem", fontWeight: 700, cursor: "pointer", border: "none", fontFamily: "Inter, sans-serif", letterSpacing: "0.01em" }}
+              style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 32px", borderRadius: 999, background: "var(--gold)", color: "#ffffff", fontSize: "0.88rem", fontWeight: 700, cursor: "pointer", border: "none", fontFamily: "Inter, sans-serif", letterSpacing: "0.01em" }}
             >
               Open Platform <ArrowRight size={15} />
             </motion.button>
@@ -260,7 +260,7 @@ export default function LandingPage({ onEnter, stats }) {
 
       {/* ── Bottom CTA ────────────────────────────────────────────────────────── */}
       <section style={{ padding: "120px 40px", textAlign: "center", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "600px", height: "400px", background: "radial-gradient(ellipse at center, rgba(201,168,76,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "600px", height: "400px", background: "radial-gradient(ellipse at center, rgba(140,109,31,0.05) 0%, transparent 70%)", pointerEvents: "none" }} />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -275,10 +275,10 @@ export default function LandingPage({ onEnter, stats }) {
             Open the platform, generate this week's top 3 articles, and post to social media in under 5 minutes.
           </p>
           <motion.button
-            whileHover={{ scale: 1.04, boxShadow: "0 0 40px rgba(201,168,76,0.3)" }}
+            whileHover={{ scale: 1.04, boxShadow: "0 8px 40px rgba(140,109,31,0.28)" }}
             whileTap={{ scale: 0.97 }}
             onClick={onEnter}
-            style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "16px 40px", borderRadius: 999, background: "var(--gold)", color: "#0b0b0b", fontSize: "0.92rem", fontWeight: 700, cursor: "pointer", border: "none", fontFamily: "Inter, sans-serif" }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 10, padding: "16px 40px", borderRadius: 999, background: "var(--gold)", color: "#ffffff", fontSize: "0.92rem", fontWeight: 700, cursor: "pointer", border: "none", fontFamily: "Inter, sans-serif" }}
           >
             Open Platform <ArrowRight size={16} />
           </motion.button>

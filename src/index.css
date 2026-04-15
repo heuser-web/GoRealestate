@@ -1,21 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --bg-primary: #0b0b0b;
-  --bg-secondary: #121212;
-  --bg-card: #181818;
-  --bg-card-hover: #1e1e1e;
-  --gold: #c9a84c;
-  --gold-light: #e8c97a;
-  --gold-dark: #a0782a;
-  --gold-dim: rgba(201, 168, 76, 0.12);
-  --gold-border: rgba(201, 168, 76, 0.18);
-  --gold-glow: rgba(201, 168, 76, 0.08);
-  --text-primary: #ede8df;
-  --text-secondary: #8a847c;
-  --text-muted: #4a4642;
-  --border-subtle: rgba(255, 255, 255, 0.05);
-  --glass: rgba(255, 255, 255, 0.02);
+  /* ── Light editorial theme — GoRealestate · Infographics ── */
+  --bg-primary:    #F7F4EE;
+  --bg-secondary:  #FFFFFF;
+  --bg-card:       #EEEADE;
+  --bg-card-hover: #E5E0D3;
+
+  --gold:          #8C6D1F;
+  --gold-light:    #B8922A;
+  --gold-dark:     #6B520F;
+  --gold-dim:      rgba(140, 109, 31, 0.09);
+  --gold-border:   rgba(140, 109, 31, 0.22);
+  --gold-glow:     rgba(140, 109, 31, 0.05);
+
+  --text-primary:   #1C1915;
+  --text-secondary: #6B6560;
+  --text-muted:     #A8A39B;
+  --border-subtle:  rgba(0, 0, 0, 0.09);
+  --glass:          rgba(0, 0, 0, 0.02);
 }
 
 * {
@@ -61,23 +64,22 @@ html, body, #root {
 }
 .article-content h2 {
   font-family: 'Playfair Display', serif;
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 600;
-  color: var(--gold-light);
+  color: var(--gold);
   margin-top: 2rem;
   margin-bottom: 0.75rem;
   letter-spacing: -0.01em;
 }
 .article-content h3 {
   font-family: 'Inter', sans-serif;
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 0.8rem;
 }
 .article-content p {
   font-size: 1.0625rem;
@@ -115,13 +117,13 @@ html, body, #root {
 .article-content blockquote p {
   margin-bottom: 0;
   font-style: italic;
-  color: var(--gold-light);
+  color: var(--gold-dark);
 }
 .article-content code {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.85em;
-  background: rgba(201,168,76,0.08);
-  color: var(--gold-light);
+  background: rgba(140, 109, 31, 0.08);
+  color: var(--gold);
   padding: 0.15em 0.4em;
   border-radius: 3px;
 }
@@ -164,46 +166,60 @@ html, body, #root {
 /* ── Social modal: lock body scroll when open ───────────────── */
 body.modal-open { overflow: hidden; }
 
-/* ── Infographic Styles ─────────────────────────────────────── */
+/* ── Infographic card ───────────────────────────────────────── */
 .infographic-card {
-  box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,168,76,0.08);
+  box-shadow: 0 4px 28px rgba(0,0,0,0.07), 0 0 0 1px rgba(140,109,31,0.08);
 }
 
+/* ── Infographic editorial content ──────────────────────────── */
 .infographic-content h2 {
   font-family: 'Playfair Display', serif;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 600;
-  color: var(--gold-light);
+  color: var(--gold);
   margin-top: 1.75rem;
   margin-bottom: 0.6rem;
   letter-spacing: -0.01em;
-  padding-bottom: 0.4rem;
+  padding-bottom: 0.35rem;
   border-bottom: 1px solid var(--gold-border);
+}
+
+.infographic-content p {
+  font-size: 0.925rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+
+.infographic-content p:first-of-type {
+  font-size: 1rem;
+  color: var(--text-primary);
 }
 
 .infographic-content p:first-of-type::first-letter {
   font-family: 'Playfair Display', serif;
-  font-size: 3.5rem;
+  font-size: 3.25rem;
   font-weight: 700;
   color: var(--gold);
   float: left;
-  line-height: 0.8;
-  margin-right: 0.12em;
-  margin-top: 0.06em;
+  line-height: 0.78;
+  margin-right: 0.1em;
+  margin-top: 0.08em;
 }
 
 .infographic-content blockquote {
   border-left: 3px solid var(--gold);
-  padding: 1rem 1.5rem;
-  margin: 1.75rem 0;
+  padding: 0.875rem 1.25rem;
+  margin: 1.5rem 0;
   background: var(--gold-dim);
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 6px 6px 0;
 }
 
 .infographic-content blockquote p {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-style: italic;
-  color: var(--gold-light);
+  color: var(--gold-dark);
   margin-bottom: 0;
 }
 
@@ -212,11 +228,14 @@ body.modal-open { overflow: hidden; }
   float: none;
   line-height: unset;
   margin: 0;
-  color: var(--gold-light);
+  color: var(--gold-dark);
 }
 
-.grid.grid-cols-4.divide-x > * + * {
-  border-left: 1px solid var(--border-subtle);
+.infographic-content li {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 0.35rem;
 }
 
 /* ── Print Styles ───────────────────────────────────────────── */
@@ -246,5 +265,5 @@ body.modal-open { overflow: hidden; }
   #infographic-print img { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 
   .article-content p, .infographic-content p { color: #222 !important; }
-  .article-content h2, .infographic-content h2 { color: #8a6a2a !important; }
+  .article-content h2, .infographic-content h2 { color: #7a5b1e !important; }
 }
